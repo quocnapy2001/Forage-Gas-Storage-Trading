@@ -1,8 +1,5 @@
 # Gas Trading
 
-## Motivation: 
-I have never worked with gas trading before and have little to no exposure to this kind of trading. So this project is an excuse for me to check it out.
-
 ## Data:
 - Monthly natural gas prices. Each data point is:
     + the market purchase price of natural gas.
@@ -10,8 +7,6 @@ I have never worked with gas trading before and have little to no exposure to th
     + from 31/10/2020 to 30/09/2024
 
 ## Analyze Price Data: 
-Even though gas prices can often be observed daily, I assume that I only have access to monthly data. If a daily series were needed in this case, the challenge would be how to generate higher-frequency estimates from lower-frequency observations. This leads to the use of interpolation and extrapolation in the following steps.
-
 ### Objective:
  1. Estmiate the purchase price for any data in the past (Interpolate).
  2. Extrapolate prices for one more year beyong the last available month-end point
