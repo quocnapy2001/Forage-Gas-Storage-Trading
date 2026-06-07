@@ -1,5 +1,8 @@
 # Gas Trading
 
+## Purpose:
+- A pricer model that estimate how much a trade worth if we buy energy during summer when the price are cheap and sell it in the winter when the price have increased.
+
 ## Data:
 - Monthly natural gas prices. Each data point is:
     + the market purchase price of natural gas.
