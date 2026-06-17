@@ -1,5 +1,11 @@
 # Gas Trading
 
+Variable	Type	Describe
+natgas_df	DataFrame	Dates and Prices data
+date_int	integer	Data in numerical form (datetime64)
+price_vals	float	array of prices
+
+
 ## Purpose:
 - A pricer model that estimate how much a trade worth if we buy energy during summer when the price are cheap and sell it in the winter when the price have increased.
 
