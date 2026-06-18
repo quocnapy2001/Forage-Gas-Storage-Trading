@@ -26,5 +26,5 @@ def interpolate_price(query_date):
 
 # Test
 print("/")
-print("Interpolation check (15/12/2022):",interpolate_price("2022-11-15"))
+print("Interpolation check (15/11/2022):",interpolate_price("2022-11-15"))
 

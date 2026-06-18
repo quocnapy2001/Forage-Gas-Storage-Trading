@@ -5,17 +5,27 @@
 |natgas\_df|DataFrame|Dates and Prices data|
 |date\_int|integer|Data in numerical form (datetime64)|
 |price\_vals|float|array of prices|
+|start\_date||earliest date in the date|
+
+
+
+|Function|Describe|
+|-|-|
+|interpolate\_price(query\_date)|Estimate the price of the chosen date or query\_date|
+|make\_features(dates)|Combine a matrix of trend, trend curvature and seasonality. |
+|||
+
 
 
 ## Purpose:
 
-* A pricer model that estimate how much a trade worth if we buy energy during summer when the price are cheap and sell it in the winter when the price have increased.
+* A pricing model that estimates how much a trade is worth if we buy energy during summer when prices are low and sell it in the winter when prices have increased.
 
 ## Data:
 
 * Monthly natural gas prices. Each data point is:
 
-  * the market purchase price of natural gas.
+  * The market purchase price of natural gas.
   * for delivery at the end of that month.
   * from 31/10/2020 to 30/09/2024
 
@@ -23,27 +33,40 @@
 
 ### Objective:
 
-1. Estmiate the purchase price for any data in the past (Interpolate).
-2. Extrapolate prices for one more year beyong the last available month-end point
+1. Estimate the purchase price for any data in the past (Interpolate).
+2. Extrapolate prices for one more year beyond the last available month-end point
 3. Provide a function to input a date => output an estimated price
 
 ### Steps:
 
 1. Interpolation:
 
-   * Why? Since the data provided is only monthly in order to get the daily price, linear interpolation is used since it is defensible, simple and consistent. Interpolation for this case means that it assumes the best neutral guess for any date between 2 observed month-end prices is a straight line.
-* How? => use np.interp() but this only work with number and date is not number => use datetime64 to convert np.interp(x, xp, fp)
-x: the estimated point (integer), xp: array of x values (integer), fp: array of y values
-In this case: x is the date that needed estimate, xp is data_int, fp is price_vals
+   * Why? => Since the data provided is only monthly, in order to get the daily price, linear interpolation is used since it is defensible, simple and consistent. Interpolation for this case means that it assumes the best neutral guess for any date between 2 observed month-end prices is a straight line.
+   * How? => use np.interp() but this only works with numbers and dates are not a number => use datetime64 to convert np.interp(x, xp, fp)
+
+     * x: the estimated point (integer), xp: array of x values (integer), fp: array of y values
+     * In this case: x is the date that needs to be estimated, xp is data\_int, fp is price\_vals
+
 
 
 2. Extrapolation:
-   * Analyse historical data to identify trend and seasonal patterns.
-   * Model the underlying price trend using time-based regression.
-   * Capture annual seasonality using trigonometric (sine and cosine) components.
-   * Fit the model to historical monthly prices.
-   * Use the fitted model to forecast prices up to one year beyond the last observed date.
-   * Integrate interpolation and extrapolation into a single pricing function.
+
+   * Why? => The current data ended in September 2024, while a contract might need the price in 2025, which is outside the provided data range. So there is a need to forecast future prices. 
+   * One approach to this issue is to learn the trend and seasonality of the provided data. The following charts show prices gradually increasing over time (Trend) and prices rise in the winter, dip in the summer (Seasonality).
+   * The trend and seasonality are clear, so the question now is how the model can understand them.
+
+     * Seasonality is tricky since month numbers from 1 to 12 need to be put in a cycle => sin(2pi \* month / 12) and cos(2pi \* month / 12). Explain:
+
+       * Since 1 to 12 are put in a cycle, they will be like a clock with 12 points on it. The use of the formula will identify the position of each point accordingly through its degree, and this will be understood by the regression model.
+       * Both sin and cos are required because there is a need to differentiate different points as sin(30) = sin(150), which means January and May are at the same position, but cos(30) != cos(150). So, the (sin, cos) pair will give every month a unique coordinate.
+     * Trend is simple since there is only one need to measure how many days have passed since the start => Use t as days since start. However, the trend doesn't increase in a straight line but rather increases at a changing rate => Add t^2 to represent such a curve.
+   * In order to build the model, there needs to be a fixed start date (the earliest date in the dataset), calculate t, the angle and finally, combine t, t^2, sin, and cos.
+
+     * t is the difference between the chosen date and the start date => .dt.days to get the number of day
+     * month is just .dt.month of the chosen date
+     * Both t and month need to be => .values.reshape() to turn into 2D array to be usable in np.interp()
+
+### 
 
 ### Output:
 
